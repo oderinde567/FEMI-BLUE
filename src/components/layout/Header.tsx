@@ -81,7 +81,7 @@ export default function Header() {
                     <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
                         <BarChart3 className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xl md:text-2xl font-bold tracking-tight text-white">BlueArnk</span>
+                    <span className="text-xl md:text-2xl font-bold tracking-tight text-white">BlueArnk Technologies</span>
                 </Link>
 
                 {/* Nav Links - Desktop with Dropdowns */}

@@ -45,7 +45,7 @@ export default function LandingPage() {
                         Trusted by 500+ Nigerian Enterprises
                     </div>
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-w-4xl mb-8 animate-fade-in-up stagger-1">
-                        Streamline Your Business Operations with <span className="text-primary">BlueArnk</span>
+                        Streamline Your Business Operations with <span className="text-primary">BlueArnk Technologies</span>
                     </h1>
                     <p className="text-lg md:text-xl text-blue-100 max-w-2xl mb-12 font-medium leading-relaxed animate-fade-in-up stagger-2">
                         The all-in-one management system built specifically for the unique operational needs of Nigerian enterprises. Scale faster, manage better.

@@ -17,13 +17,13 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [profile, setProfile] = useState<UserProfile>({
-        firstName: 'Adebayo',
-        lastName: 'Okonkwo',
-        email: 'adebayo@bluearnk.ng',
-        phone: '+234 802 123 4567',
+        firstName: 'Femi',
+        lastName: 'Oderinde',
+        email: 'femi@bluearnk.ng',
+        phone: '+234 8144 9799 38',
         company: 'BlueArnk Technologies',
         location: 'Lagos, Nigeria',
-        role: 'Operations Manager',
+        role: 'C.E.O/ Operations Manager',
         bio: 'Experienced operations manager with a passion for streamlining business processes and improving efficiency.',
     });
 

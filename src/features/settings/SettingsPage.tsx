@@ -84,7 +84,7 @@ export default function SettingsPage() {
                                 <label className="text-sm font-semibold text-navy dark:text-white">Full Name</label>
                                 <input
                                     type="text"
-                                    defaultValue="Afolabi Gbolahan"
+                                    defaultValue="Femi Oderinde"
                                     className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-navy bg-transparent text-navy dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                                 />
                             </div>
@@ -92,7 +92,7 @@ export default function SettingsPage() {
                                 <label className="text-sm font-semibold text-navy dark:text-white">Email Address</label>
                                 <input
                                     type="email"
-                                    defaultValue="afolabi.g@bluearnk.ng"
+                                    defaultValue="femi.o@bluearnk.ng"
                                     className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-navy bg-transparent text-navy dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                                 />
                             </div>
@@ -108,7 +108,7 @@ export default function SettingsPage() {
                                     </span>
                                     <input
                                         type="tel"
-                                        defaultValue="8012345678"
+                                        defaultValue="8144979938"
                                         className="flex-1 h-11 px-4 rounded-r-lg border border-gray-200 dark:border-navy bg-transparent text-navy dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                                     />
                                 </div>
@@ -117,7 +117,7 @@ export default function SettingsPage() {
                                 <label className="text-sm font-semibold text-navy dark:text-white">Business Address (Lagos)</label>
                                 <input
                                     type="text"
-                                    placeholder="123 Victoria Island, Lagos State"
+                                    placeholder="8, Gafari Balogun Ikeja, Lagos State"
                                     className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-navy bg-transparent text-navy dark:text-white placeholder:text-gray-400 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                                 />
                             </div>

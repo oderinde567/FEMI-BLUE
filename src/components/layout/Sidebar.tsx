@@ -85,9 +85,23 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 <div className="flex h-16 items-center justify-between px-6 border-b border-gray-100 dark:border-navy-light">
                     <div className="flex items-center gap-3">
                         <div className="flex bg-primary/10 text-primary h-8 w-8 items-center justify-center rounded-lg">
-                            <BarChart3 className="h-5 w-5" />
+                            {/* <BarChart3 className="h-10 w-10" />
+                             */}
+
+
+                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+    <img
+        src="/logo.jpg"
+        alt="BlueArnk Logo"
+        className="h-15 w-15 object-contain"
+    />
+</div>
+
+
+                            
+                       
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-navy dark:text-white">BlueArnk</span>
+                        <span className="text-xl font-bold tracking-tight text-navy dark:text-white">BlueArnk Technologies</span>
                     </div>
                     <button
                         onClick={onClose}
