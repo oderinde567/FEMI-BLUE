@@ -18,10 +18,10 @@ interface Activity {
 }
 
 const activities: Activity[] = [
-    { id: '1', type: 'user', action: 'User Login', user: 'Adebayo Okonkwo', userAvatar: 'AO', details: 'Logged in from Lagos, Nigeria', timestamp: '2 minutes ago', status: 'success', ip: '102.89.23.45' },
+    { id: '1', type: 'user', action: 'User Login', user: 'Kelvin Macuss', userAvatar: 'AO', details: 'Logged in from Lagos, Nigeria', timestamp: '2 minutes ago', status: 'success', ip: '102.89.23.45' },
     { id: '2', type: 'request', action: 'Request Created', user: 'Chioma Eze', userAvatar: 'CE', details: 'Created request #REQ-2024-001', timestamp: '15 minutes ago', status: 'info' },
     { id: '3', type: 'settings', action: 'Settings Updated', user: 'Admin', userAvatar: 'AD', details: 'Changed notification preferences', timestamp: '1 hour ago', status: 'info' },
-    { id: '4', type: 'security', action: 'Password Changed', user: 'Ngozi Adeyemi', userAvatar: 'NA', details: 'Password successfully updated', timestamp: '2 hours ago', status: 'success' },
+    { id: '4', type: 'security', action: 'Password Changed', user: 'Olanike Oyadiran', userAvatar: 'NA', details: 'Password successfully updated', timestamp: '2 hours ago', status: 'success' },
     { id: '5', type: 'user', action: 'User Created', user: 'Oluwaseun Bakare', userAvatar: 'OB', details: 'Created new user: john@company.ng', timestamp: '3 hours ago', status: 'success' },
     { id: '6', type: 'security', action: 'Failed Login Attempt', user: 'Unknown', userAvatar: '??', details: 'Multiple failed attempts from IP 192.168.1.100', timestamp: '4 hours ago', status: 'warning', ip: '192.168.1.100' },
     { id: '7', type: 'request', action: 'Request Completed', user: 'System', userAvatar: 'SY', details: 'Auto-closed request #REQ-2023-089', timestamp: '5 hours ago', status: 'success' },

@@ -57,7 +57,7 @@ export default function SettingsPage() {
                         <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
                             <div className="relative group">
                                 <div className="h-32 w-32 rounded-full border-4 border-white dark:border-navy shadow-lg bg-cover bg-center"
-                                    style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuD6qhn-Gz6Sko0Iq1z71g1O7UkgYvI0eQG0YP2SbcWslf6QW7AbAG4iyS-gPkHquR4AAj6asXg47XHYG_yVME5yUGQV9KfKtouip5fLHLNXyKTgEJRKnCMnodrAx5EkMn25f-CAeUn2SrTouNd2sQToDsOIB3JJWn2Tpq9eDrWPJa28heFdLkxdSH_T7Bh5YMcUG4UfDJx0JZXckzb6T2iYb4fL8hOmUbQYlq2KAmsSI1oRa6gz9hj4z8GfCb61i2zAlPySZM3shQ")` }}>
+                                    style={{ backgroundImage: `url()`}}>
                                 </div>
                                 <button className="absolute bottom-0 right-0 h-8 w-8 bg-primary text-white rounded-full flex items-center justify-center border-2 border-white dark:border-navy shadow-md">
                                     <Camera className="h-4 w-4" />

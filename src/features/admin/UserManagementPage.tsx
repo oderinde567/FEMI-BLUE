@@ -17,11 +17,11 @@ interface User {
 }
 
 const mockUsers: User[] = [
-    { id: 'ARN-001', name: 'Abebi Adeyemi', email: 'abebi@bluearnk.ng', phone: '+234 802 123 4567', role: 'Admin', department: 'Operations', status: 'active', avatar: 'AA' },
-    { id: 'ARN-042', name: 'Chidi Okafor', email: 'chidi@bluearnk.ng', phone: '+234 810 987 6543', role: 'Manager', department: 'Finance', status: 'active', avatar: 'CO' },
+    { id: 'ARN-001', name: 'Kelvin Macuss', email: 'kelvin@bluearnk.ng', phone: '+234 901 436 3569', role: 'Admin', department: 'Operations', status: 'active', avatar: 'AA' },
+    { id: 'ARN-042', name: 'Olanike Oyadiran', email: 'nike@bluearnk.ng', phone: '+234 907 402 1516', role: 'Manager', department: 'Finance', status: 'active', avatar: 'CO' },
     { id: 'ARN-115', name: 'Babajide Soyinka', email: 'jide@bluearnk.ng', phone: '+234 703 456 7890', role: 'User', department: 'Sales', status: 'inactive', avatar: 'BS' },
     { id: 'ARN-208', name: 'Ngozi Eze', email: 'ngozi@bluearnk.ng', phone: '+234 905 111 2222', role: 'User', department: 'Support', status: 'active', avatar: 'NE' },
-    { id: 'ARN-054', name: 'Oluwaseun Bakare', email: 'seun@bluearnk.ng', phone: '+234 806 333 4444', role: 'Manager', department: 'Operations', status: 'active', avatar: 'OB' },
+    { id: 'ARN-054', name: 'Olayeni Nice', email: 'nice@bluearnk.ng', phone: '+234 808 126 0566', role: 'Manager', department: 'Operations', status: 'active', avatar: 'OB' },
 ];
 
 const stats = [
