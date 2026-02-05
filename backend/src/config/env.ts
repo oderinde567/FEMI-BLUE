@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    PORT: z.string().default('3000').transform(Number),
+    PORT: z.string().default('30007').transform(Number),
     API_VERSION: z.string().default('v1'),
 
     // Database
@@ -17,6 +17,7 @@ const envSchema = z.object({
     // Email
     BREVO_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().email().default('noreply@bluearnk.com'),
+    EMAIL_FROM_NAME: z.string().default('BlueArnk'),
 
     // Cloudinary
     CLOUDINARY_CLOUD_NAME: z.string().optional(),

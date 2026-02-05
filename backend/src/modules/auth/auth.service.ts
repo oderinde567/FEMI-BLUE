@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { User, EmailVerificationToken, PasswordResetToken, RefreshToken } from '../../database/models/index.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { env } from '../../config/env.js';
+import { emailService } from '../../services/email.service.js';
 import type { SignupInput, LoginInput, ForgotPasswordInput, ResetPasswordInput, VerifyEmailOtpInput } from './auth.validators.js';
 
 interface TokenPayload {
@@ -79,9 +80,19 @@ class AuthService {
             expiresAt,
         });
 
-        // TODO: Send verification email with OTP and magic link
-        console.log(`📧 Verification OTP for ${user.email}: ${otp}`);
-        console.log(`🔗 Magic link token: ${token}`);
+        // Send verification email with OTP and magic link
+        const magicLink = `${env.FRONTEND_URL}/verify-email?token=${token}`;
+        console.log(`📧 Sending verification email to ${user.email}...`);
+        console.log(`📧 OTP: ${otp}`);
+        console.log(`🔗 Magic link: ${magicLink}`);
+
+        try {
+            await emailService.sendVerificationEmail(user.email, otp, magicLink);
+            console.log(`✅ Verification email sent to ${user.email}`);
+        } catch (error) {
+            console.error(`❌ Failed to send verification email:`, error);
+            // Don't throw - user is already created, they can resend verification
+        }
 
         return {
             userId: user._id.toString(),
@@ -231,8 +242,17 @@ class AuthService {
             expiresAt,
         });
 
-        // TODO: Send reset email
-        console.log(`🔑 Password reset token for ${user.email}: ${token}`);
+        // Send password reset email
+        const resetLink = `${env.FRONTEND_URL}/reset-password?token=${token}`;
+        console.log(`🔑 Sending password reset email to ${user.email}...`);
+        console.log(`🔗 Reset link: ${resetLink}`);
+
+        try {
+            await emailService.sendPasswordResetEmail(user.email, resetLink);
+            console.log(`✅ Password reset email sent to ${user.email}`);
+        } catch (error) {
+            console.error(`❌ Failed to send password reset email:`, error);
+        }
 
         return { message: 'If the email exists, a reset link has been sent.' };
     }
@@ -368,9 +388,18 @@ class AuthService {
             expiresAt,
         });
 
-        // TODO: Send verification email
-        console.log(`📧 New verification OTP for ${user.email}: ${otp}`);
-        console.log(`🔗 New magic link token: ${token}`);
+        // Send verification email with OTP and magic link
+        const magicLink = `${env.FRONTEND_URL}/verify-email?token=${token}`;
+        console.log(`📧 Sending verification email to ${user.email}...`);
+        console.log(`📧 OTP: ${otp}`);
+        console.log(`🔗 Magic link: ${magicLink}`);
+
+        try {
+            await emailService.sendVerificationEmail(user.email, otp, magicLink);
+            console.log(`✅ Verification email sent to ${user.email}`);
+        } catch (error) {
+            console.error(`❌ Failed to send verification email:`, error);
+        }
 
         return { message: 'If the email exists and is unverified, a new code has been sent.' };
     }

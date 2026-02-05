@@ -42,9 +42,8 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
     }
 );
 
-// Indexes
+// Indexes (tokenHash index created automatically by unique: true)
 refreshTokenSchema.index({ userId: 1 });
-refreshTokenSchema.index({ tokenHash: 1 });
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
 export const RefreshToken: Model<IRefreshToken> = mongoose.model<IRefreshToken>(
