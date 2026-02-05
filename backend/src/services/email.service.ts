@@ -15,35 +15,53 @@ class EmailService {
     private baseUrl = 'https://api.brevo.com/v3';
 
     private async sendRequest<T>(endpoint: string, body: unknown): Promise<T> {
+        console.log('📧 [EMAIL] Attempting to send email...');
+        console.log('📧 [EMAIL] BREVO_API_KEY configured:', !!env.BREVO_API_KEY);
+
         if (!env.BREVO_API_KEY) {
-            console.log('📧 Email (simulated):', JSON.stringify(body, null, 2));
+            console.log('📧 [EMAIL] ⚠️ No BREVO_API_KEY - simulating email send');
+            console.log('📧 [EMAIL] Simulated payload:', JSON.stringify(body, null, 2));
             return { messageId: 'simulated-' + Date.now() } as T;
         }
 
-        const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'api-key': env.BREVO_API_KEY,
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
+        try {
+            console.log('📧 [EMAIL] Sending to Brevo API:', endpoint);
+            const response = await fetch(`${this.baseUrl}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': env.BREVO_API_KEY,
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            });
 
-        if (!response.ok) {
-            const error = await response.text();
-            console.error('❌ Brevo API error:', error);
-            throw new Error(`Email send failed: ${response.status}`);
+            if (!response.ok) {
+                const error = await response.text();
+                console.error('📧 [EMAIL] ❌ Brevo API error:', response.status, error);
+                throw new Error(`Email send failed: ${response.status} - ${error}`);
+            }
+
+            const result = await response.json() as T;
+            console.log('📧 [EMAIL] ✅ Email sent successfully!', result);
+            return result;
+        } catch (error) {
+            console.error('📧 [EMAIL] ❌ Failed to send email:', error);
+            throw error;
         }
-
-        return response.json() as Promise<T>;
     }
 
     async sendEmail(options: EmailOptions): Promise<BrevoResponse> {
         const recipients = Array.isArray(options.to) ? options.to : [options.to];
 
+        console.log('📧 [EMAIL] ────────────────────────────────────');
+        console.log('📧 [EMAIL] To:', recipients.join(', '));
+        console.log('📧 [EMAIL] Subject:', options.subject);
+        console.log('📧 [EMAIL] From:', env.EMAIL_FROM, `(${env.EMAIL_FROM_NAME})`);
+        console.log('📧 [EMAIL] ────────────────────────────────────');
+
         return this.sendRequest<BrevoResponse>('/smtp/email', {
-            sender: { email: env.EMAIL_FROM, name: 'BlueArnk' },
+            sender: { email: env.EMAIL_FROM, name: env.EMAIL_FROM_NAME },
             to: recipients.map((email) => ({ email })),
             subject: options.subject,
             htmlContent: options.htmlContent,

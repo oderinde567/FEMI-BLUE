@@ -40,9 +40,8 @@ const emailVerificationTokenSchema = new Schema<IEmailVerificationToken>(
     }
 );
 
-// Indexes
+// Indexes (token index created automatically by unique: true)
 emailVerificationTokenSchema.index({ userId: 1 });
-emailVerificationTokenSchema.index({ token: 1 });
 emailVerificationTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
 export const EmailVerificationToken: Model<IEmailVerificationToken> = mongoose.model<IEmailVerificationToken>(

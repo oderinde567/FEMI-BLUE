@@ -88,8 +88,7 @@ const requestSchema = new Schema<IRequest>(
     }
 );
 
-// Indexes
-requestSchema.index({ referenceNumber: 1 });
+// Indexes (referenceNumber index created automatically by unique: true)
 requestSchema.index({ requesterId: 1 });
 requestSchema.index({ assignedTo: 1 });
 requestSchema.index({ status: 1 });
