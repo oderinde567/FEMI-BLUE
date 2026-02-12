@@ -1,42 +1,65 @@
-import { useState } from 'react';
-import { Camera, Mail, Phone, Building2, MapPin, Save, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Camera, Mail, Phone, Building2, MapPin, Save, User as UserIcon } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-
-interface UserProfile {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    company: string;
-    location: string;
-    role: string;
-    bio: string;
-}
+import { getMe, updateMe, type UpdateProfileData } from './api/profile-api';
+import type { User } from '../auth/types';
+import { toast } from 'react-hot-toast';
 
 export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [profile, setProfile] = useState<UserProfile>({
-        firstName: 'Femi',
-        lastName: 'Oderinde',
-        email: 'femi@bluearnk.ng',
-        phone: '+234 8144 9799 38',
-        company: 'BlueArnk Technologies',
-        location: 'Lagos, Nigeria',
-        role: 'C.E.O/ Operations Manager',
-        bio: 'Experienced operations manager with a passion for streamlining business processes and improving efficiency.',
-    });
+    const [isLoading, setIsLoading] = useState(true);
+    const [profile, setProfile] = useState<User | null>(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await getMe();
+                setProfile(data);
+            } catch (error) {
+                console.error('Failed to fetch profile:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const handleSave = async () => {
+        if (!profile) return;
         setIsSaving(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSaving(false);
-        setIsEditing(false);
+        try {
+            const updateData: UpdateProfileData = {
+                firstName: profile.firstName,
+                lastName: profile.lastName,
+                phone: profile.phone,
+                company: profile.company,
+                location: profile.location,
+                bio: profile.bio,
+            };
+            const updatedUser = await updateMe(updateData);
+            setProfile(updatedUser);
+            setIsEditing(false);
+            toast.success('Profile updated successfully');
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const handleChange = (field: keyof UserProfile, value: string) => {
-        setProfile(prev => ({ ...prev, [field]: value }));
+    const handleChange = (field: string, value: string) => {
+        if (!profile) return;
+        setProfile(prev => prev ? ({ ...prev, [field]: value }) : null);
     };
+
+    if (isLoading) {
+        return <div className="flex items-center justify-center h-64">Loading profile...</div>;
+    }
+
+    if (!profile) {
+        return <div className="text-center py-12">Failed to load profile. Please try again later.</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -86,14 +109,18 @@ export default function ProfilePage() {
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{profile.role}</p>
                             <div className="mt-4 w-full">
-                                <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                    <Building2 className="h-4 w-4" />
-                                    {profile.company}
-                                </div>
-                                <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                    <MapPin className="h-4 w-4" />
-                                    {profile.location}
-                                </div>
+                                {profile.company && (
+                                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                        <Building2 className="h-4 w-4" />
+                                        {profile.company}
+                                    </div>
+                                )}
+                                {profile.location && (
+                                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                        <MapPin className="h-4 w-4" />
+                                        {profile.location}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -125,7 +152,7 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-600 dark:text-gray-400">First Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
                                         value={profile.firstName}
@@ -140,7 +167,7 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Last Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
                                         value={profile.lastName}
@@ -173,7 +200,7 @@ export default function ProfilePage() {
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                     <input
                                         type="tel"
-                                        value={profile.phone}
+                                        value={profile.phone || ''}
                                         onChange={(e) => handleChange('phone', e.target.value)}
                                         disabled={!isEditing}
                                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-navy bg-gray-50 dark:bg-navy text-navy dark:text-white disabled:opacity-70 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -188,7 +215,7 @@ export default function ProfilePage() {
                                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
-                                        value={profile.company}
+                                        value={profile.company || ''}
                                         onChange={(e) => handleChange('company', e.target.value)}
                                         disabled={!isEditing}
                                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-navy bg-gray-50 dark:bg-navy text-navy dark:text-white disabled:opacity-70 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -203,7 +230,7 @@ export default function ProfilePage() {
                                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
-                                        value={profile.location}
+                                        value={profile.location || ''}
                                         onChange={(e) => handleChange('location', e.target.value)}
                                         disabled={!isEditing}
                                         className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-navy bg-gray-50 dark:bg-navy text-navy dark:text-white disabled:opacity-70 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -216,7 +243,7 @@ export default function ProfilePage() {
                         <div className="mt-5 space-y-2">
                             <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Bio</label>
                             <textarea
-                                value={profile.bio}
+                                value={profile.bio || ''}
                                 onChange={(e) => handleChange('bio', e.target.value)}
                                 disabled={!isEditing}
                                 rows={4}

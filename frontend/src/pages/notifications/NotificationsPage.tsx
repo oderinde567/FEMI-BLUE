@@ -1,32 +1,18 @@
-import { useState } from 'react';
-import { CheckCircle, AlertTriangle, FileCheck, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle, AlertTriangle, FileCheck, Settings, BellOff } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
+import { getNotifications, markAllAsRead, markAsRead, deleteNotification } from '../../features/notifications/api/notifications-api';
+import type { Notification } from '../../features/notifications/types';
+import { formatDistanceToNow } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
-type NotificationType = 'assignment' | 'payment' | 'deadline' | 'completion';
-
-interface Notification {
-    id: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    time: string;
-    isRead: boolean;
-    requestId?: string;
-}
-
-const notifications: Notification[] = [
-    { id: '1', type: 'assignment', title: 'New Request Assigned', message: 'A new professional service request #402-Lagos has been assigned to your team by the Logistics manager.', time: '10:30 AM WAT', isRead: false, requestId: '#402' },
-    { id: '2', type: 'payment', title: 'Payment Confirmed', message: 'The deposit for request #388 has been verified. You can now proceed with the procurement phase.', time: '08:15 AM WAT', isRead: false, requestId: '#388' },
-    { id: '3', type: 'deadline', title: 'Deadline Approaching', message: 'Reminder: Request #350 (IT Audit) is due in 24 hours. Please ensure all documentation is uploaded.', time: 'Yesterday, 04:45 PM WAT', isRead: true, requestId: '#350' },
-    { id: '4', type: 'completion', title: 'Request Completed', message: 'Service request #312 has been marked as completed by the client. Well done!', time: 'Nov 12, 02:00 PM WAT', isRead: true, requestId: '#312' },
-];
-
-const typeConfig = {
+const typeConfig: Record<string, { icon: any, color: string }> = {
     assignment: { icon: FileCheck, color: 'text-primary bg-primary/10 border-primary' },
     payment: { icon: CheckCircle, color: 'text-green-500 bg-green-50 border-green-500' },
     deadline: { icon: AlertTriangle, color: 'text-orange-500 bg-orange-50 border-orange-500' },
     completion: { icon: CheckCircle, color: 'text-gray-500 bg-gray-100 border-gray-300' },
+    default: { icon: FileCheck, color: 'text-primary bg-primary/10 border-primary' },
 };
 
 export default function NotificationsPage() {
@@ -34,6 +20,8 @@ export default function NotificationsPage() {
     const [emailAlerts, setEmailAlerts] = useState(true);
     const [pushNotifications, setPushNotifications] = useState(true);
     const [smsNotifications, setSmsNotifications] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
 
     const tabs = [
         { id: 'all', label: 'All Activity' },
@@ -41,12 +29,57 @@ export default function NotificationsPage() {
         { id: 'mentions', label: 'Mentions' },
     ];
 
-    const filteredNotifications = activeTab === 'unread'
-        ? notifications.filter(n => !n.isRead)
-        : notifications;
+    useEffect(() => {
+        fetchNotifications();
+    }, [activeTab]);
 
-    const todayNotifications = filteredNotifications.slice(0, 2);
-    const olderNotifications = filteredNotifications.slice(2);
+    const fetchNotifications = async () => {
+        setIsLoading(true);
+        try {
+            const params = activeTab === 'unread' ? { isRead: false } : {};
+            const data = await getNotifications(params);
+            setNotifications(data.notifications);
+        } catch (error) {
+            console.error('Failed to fetch notifications:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllAsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, readAt: new Date().toISOString() })));
+            toast.success('All notifications marked as read');
+        } catch (error) {
+            console.error('Failed to mark all as read:', error);
+        }
+    };
+
+    const handleMarkAsRead = async (id: string) => {
+        try {
+            await markAsRead(id);
+            setNotifications(prev => prev.map(n => n.id === id ? ({ ...n, readAt: new Date().toISOString() }) : n));
+        } catch (error) {
+            console.error('Failed to mark as read:', error);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteNotification(id);
+            setNotifications(prev => prev.filter(n => n.id !== id));
+            toast.success('Notification dismissed');
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+        }
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todayNotifications = notifications.filter(n => new Date(n.createdAt) >= today);
+    const olderNotifications = notifications.filter(n => new Date(n.createdAt) < today);
 
     return (
         <div className="flex flex-col lg:flex-row gap-8">
@@ -54,7 +87,7 @@ export default function NotificationsPage() {
             <section className="flex-1 max-w-3xl">
                 <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h1 className="text-3xl font-bold text-navy dark:text-white">Notifications</h1>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Mark all as read
                     </Button>
@@ -80,67 +113,107 @@ export default function NotificationsPage() {
 
                 {/* Notification Sections */}
                 <div className="space-y-6">
-                    {/* Today */}
-                    {todayNotifications.length > 0 && (
-                        <div>
-                            <h3 className="text-lg font-bold text-navy dark:text-white mb-4">Today</h3>
-                            <div className="space-y-3">
-                                {todayNotifications.map((notification) => {
-                                    const config = typeConfig[notification.type];
-                                    const Icon = config.icon;
-                                    return (
-                                        <div
-                                            key={notification.id}
-                                            className={cn(
-                                                "flex gap-4 bg-white dark:bg-navy-light px-5 py-4 rounded-xl shadow-sm border-l-4",
-                                                config.color.split(' ')[2]
-                                            )}
-                                        >
-                                            <div className={cn("flex items-center justify-center rounded-xl h-12 w-12 shrink-0", config.color.split(' ').slice(0, 2).join(' '))}>
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-bold text-navy dark:text-white">{notification.title}</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.message}</p>
-                                                <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
-                                            </div>
-                                            <div className="flex flex-col gap-2">
-                                                <Button size="sm">View Request</Button>
-                                                <Button variant="ghost" size="sm">Dismiss</Button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-navy-light rounded-2xl border border-dashed border-gray-200 dark:border-navy">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                            <p className="text-gray-500 mt-4">Loading notifications...</p>
                         </div>
-                    )}
+                    ) : notifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-navy-light rounded-2xl border border-dashed border-gray-200 dark:border-navy text-center px-4">
+                            <div className="bg-gray-100 dark:bg-navy p-4 rounded-full mb-4">
+                                <BellOff className="h-8 w-8 text-gray-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-navy dark:text-white">All caught up!</h3>
+                            <p className="text-gray-500 max-w-xs mx-auto">You don't have any notifications {activeTab === 'unread' ? 'that you haven\'t read yet' : ''}.</p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Today */}
+                            {todayNotifications.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-bold text-navy dark:text-white mb-4">Today</h3>
+                                    <div className="space-y-3">
+                                        {todayNotifications.map((notification) => {
+                                            const config = typeConfig[notification.type] || typeConfig.default;
+                                            const Icon = config.icon;
+                                            return (
+                                                <div
+                                                    key={notification.id}
+                                                    className={cn(
+                                                        "flex gap-4 bg-white dark:bg-navy-light px-5 py-4 rounded-xl shadow-sm border-l-4",
+                                                        notification.readAt ? "border-transparent opacity-75" : config.color.split(' ')[2]
+                                                    )}
+                                                    onClick={() => !notification.readAt && handleMarkAsRead(notification.id)}
+                                                >
+                                                    <div className={cn("flex items-center justify-center rounded-xl h-12 w-12 shrink-0", config.color.split(' ').slice(0, 2).join(' '))}>
+                                                        <Icon className="h-5 w-5" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-navy dark:text-white">{notification.title}</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.message}</p>
+                                                        <p className="text-xs text-gray-400 mt-2">
+                                                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        {notification.data?.requestId && (
+                                                            <Button size="sm" onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.location.href = `/requests/${notification.data?.requestId}`;
+                                                            }}>View Request</Button>
+                                                        )}
+                                                        <Button variant="ghost" size="sm" onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDelete(notification.id);
+                                                        }}>Dismiss</Button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
-                    {/* Older */}
-                    {olderNotifications.length > 0 && (
-                        <div>
-                            <h3 className="text-lg font-bold text-navy dark:text-white mb-4">Older</h3>
-                            <div className="space-y-3">
-                                {olderNotifications.map((notification) => {
-                                    const config = typeConfig[notification.type];
-                                    const Icon = config.icon;
-                                    return (
-                                        <div
-                                            key={notification.id}
-                                            className="flex gap-4 bg-white/60 dark:bg-navy-light/50 px-5 py-4 rounded-xl shadow-sm opacity-75"
-                                        >
-                                            <div className={cn("flex items-center justify-center rounded-xl h-12 w-12 shrink-0", config.color.split(' ').slice(0, 2).join(' '))}>
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-bold text-navy dark:text-white">{notification.title}</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.message}</p>
-                                                <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                            {/* Older */}
+                            {olderNotifications.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-bold text-navy dark:text-white mb-4">Older</h3>
+                                    <div className="space-y-3">
+                                        {olderNotifications.map((notification) => {
+                                            const config = typeConfig[notification.type] || typeConfig.default;
+                                            const Icon = config.icon;
+                                            return (
+                                                <div
+                                                    key={notification.id}
+                                                    className={cn(
+                                                        "flex gap-4 bg-white/60 dark:bg-navy-light/50 px-5 py-4 rounded-xl shadow-sm",
+                                                        notification.readAt ? "opacity-60" : "opacity-90 border-l-4 " + config.color.split(' ')[2]
+                                                    )}
+                                                    onClick={() => !notification.readAt && handleMarkAsRead(notification.id)}
+                                                >
+                                                    <div className={cn("flex items-center justify-center rounded-xl h-12 w-12 shrink-0", config.color.split(' ').slice(0, 2).join(' '))}>
+                                                        <Icon className="h-5 w-5" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-navy dark:text-white">{notification.title}</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.message}</p>
+                                                        <p className="text-xs text-gray-400 mt-2">
+                                                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <Button variant="ghost" size="sm" onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDelete(notification.id);
+                                                        }}>Dismiss</Button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </section>

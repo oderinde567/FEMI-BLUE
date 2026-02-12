@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const listActivityQuerySchema = z.object({
-    page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-    limit: z.string().optional().transform((v) => Math.min(v ? parseInt(v, 10) : 50, 100)),
+    page: z.coerce.number().int().positive().optional().default(1),
+    limit: z.coerce.number().int().positive().max(100).optional().default(50),
     action: z.string().optional(),
     entityType: z.string().optional(),
     fromDate: z.string().optional(),

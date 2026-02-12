@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const listNotificationsQuerySchema = z.object({
-    page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-    limit: z.string().optional().transform((v) => Math.min(v ? parseInt(v, 10) : 20, 100)),
-    unreadOnly: z.string().optional().transform((v) => v === 'true'),
+    page: z.coerce.number().int().positive().optional().default(1),
+    limit: z.coerce.number().int().positive().max(100).optional().default(20),
+    isRead: z.preprocess((val) => val === 'true' || val === true, z.boolean().optional()),
 });
 
 export const notificationIdParamSchema = z.object({

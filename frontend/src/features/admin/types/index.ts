@@ -11,7 +11,7 @@ export interface UserFilters {
     emailVerified?: boolean;
 }
 
-// User list response
+// User list response - aligned with backend PaginatedResponse
 export interface UsersListResponse {
     users: User[];
     pagination: {
@@ -19,7 +19,6 @@ export interface UsersListResponse {
         limit: number;
         total: number;
         totalPages: number;
-        hasMore: boolean;
     };
 }
 
@@ -43,21 +42,27 @@ export interface UpdateUserData {
     avatarUrl?: string;
 }
 
-// Activity log entry
+// Activity log entry - aligned with backend IActivityLog
 export interface ActivityLogEntry {
     id: string;
-    userId: string;
-    userName: string;
+    _id: string;
+    actorId?: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
     action: string;
-    resourceType: string;
-    resourceId?: string;
-    details?: Record<string, unknown>;
+    entityType?: string;
+    entityId?: string;
+    description: string;
+    metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
     createdAt: string;
 }
 
-// Activity log response
+// Activity log response - aligned with PaginatedResponse
 export interface ActivityLogResponse {
     logs: ActivityLogEntry[];
     pagination: {
@@ -65,6 +70,5 @@ export interface ActivityLogResponse {
         limit: number;
         total: number;
         totalPages: number;
-        hasMore: boolean;
     };
 }

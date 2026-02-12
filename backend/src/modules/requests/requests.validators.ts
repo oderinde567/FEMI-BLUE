@@ -32,8 +32,8 @@ export const addCommentSchema = z.object({
 });
 
 export const listRequestsQuerySchema = z.object({
-    page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-    limit: z.string().optional().transform((v) => Math.min(v ? parseInt(v, 10) : 20, 100)),
+    page: z.coerce.number().int().positive().optional().default(1),
+    limit: z.coerce.number().int().positive().max(100).optional().default(20),
     status: z.enum(['pending', 'in_progress', 'completed', 'cancelled', 'overdue']).optional(),
     priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
     category: z.string().optional(),

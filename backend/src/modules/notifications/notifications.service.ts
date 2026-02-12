@@ -4,12 +4,12 @@ import type { ListNotificationsQuery } from './notifications.validators.js';
 
 class NotificationsService {
     async listNotifications(query: ListNotificationsQuery, userId: string) {
-        const { page, limit, unreadOnly } = query;
+        const { page, limit, isRead } = query;
         const skip = (page - 1) * limit;
 
         const filter: Record<string, unknown> = { userId };
-        if (unreadOnly) {
-            filter.readAt = null;
+        if (isRead !== undefined) {
+            filter.readAt = isRead ? { $ne: null } : null;
         }
 
         const [notifications, total] = await Promise.all([

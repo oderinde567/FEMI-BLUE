@@ -47,6 +47,13 @@ const activityLogSchema = new Schema<IActivityLog>(
     },
     {
         timestamps: { createdAt: true, updatedAt: false },
+        toJSON: {
+            virtuals: true,
+            transform(_doc, ret) {
+                const { __v, ...rest } = ret;
+                return rest;
+            },
+        },
     }
 );
 
