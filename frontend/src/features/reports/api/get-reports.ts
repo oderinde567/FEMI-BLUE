@@ -13,6 +13,6 @@ export async function getRequestSummary(filters?: ReportsFilters): Promise<Reque
 }
 
 export async function getTrends(filters?: ReportsFilters): Promise<TrendsReport> {
-    const response = await apiClient.get<ApiResponse<TrendsReport>>('/reports/trends', { params: filters });
+    const response = await apiClient.get<ApiResponse<TrendsReport>>('/reports/requests/trends', { params: filters });
     return response.data.data;
 }

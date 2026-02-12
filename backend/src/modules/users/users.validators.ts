@@ -19,6 +19,9 @@ export const updateUserSchema = z.object({
     firstName: z.string().min(1).max(100).trim().optional(),
     lastName: z.string().min(1).max(100).trim().optional(),
     phone: z.string().max(20).optional(),
+    company: z.string().max(100).optional(),
+    location: z.string().max(200).optional(),
+    bio: z.string().max(1000).optional(),
     avatarUrl: z.string().url().optional(),
 });
 
@@ -42,10 +45,10 @@ export const changePasswordSchema = z.object({
 });
 
 export const listUsersQuerySchema = z.object({
-    page: z.string().optional().transform((v) => (v ? parseInt(v, 10) : 1)),
-    limit: z.string().optional().transform((v) => Math.min(v ? parseInt(v, 10) : 20, 100)),
+    page: z.coerce.number().int().positive().optional().default(1),
+    limit: z.coerce.number().int().positive().max(100).optional().default(20),
     role: z.enum(['admin', 'staff', 'client']).optional(),
-    isActive: z.string().optional().transform((v) => v === 'true'),
+    isActive: z.preprocess((val) => val === 'true' || val === true, z.boolean().optional()),
     search: z.string().optional(),
     sortBy: z.string().optional().default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),

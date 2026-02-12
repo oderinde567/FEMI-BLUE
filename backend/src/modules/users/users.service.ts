@@ -91,6 +91,9 @@ class UsersService {
         if (data.firstName) user.firstName = data.firstName;
         if (data.lastName) user.lastName = data.lastName;
         if (data.phone !== undefined) user.phone = data.phone;
+        if (data.company !== undefined) user.company = data.company;
+        if (data.location !== undefined) user.location = data.location;
+        if (data.bio !== undefined) user.bio = data.bio;
         if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl;
 
         await user.save();

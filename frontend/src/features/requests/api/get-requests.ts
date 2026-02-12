@@ -13,8 +13,3 @@ export async function getRequestById(id: string): Promise<RequestItem> {
     const response = await apiClient.get<ApiResponse<RequestItem>>(`/requests/${id}`);
     return response.data.data;
 }
-
-export async function getMyRequests(params?: GetRequestsParams): Promise<RequestsListResponse> {
-    const response = await apiClient.get<ApiResponse<RequestsListResponse>>('/requests/my', { params });
-    return response.data.data;
-}

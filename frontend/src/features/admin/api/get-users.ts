@@ -1,13 +1,19 @@
 import apiClient from '../../../lib/api-client';
 import type { ApiResponse, PaginationParams } from '../../../types/api';
 import type { User } from '../../auth/types';
-import type { UserFilters, UsersListResponse, CreateUserData, UpdateUserData, ActivityLogResponse } from '../types';
+import type { UserFilters, UsersListResponse, CreateUserData, UpdateUserData, ActivityLogResponse, ActivityLogEntry } from '../types';
 
 interface GetUsersParams extends PaginationParams, UserFilters { }
 
 export async function getUsers(params?: GetUsersParams): Promise<UsersListResponse> {
-    const response = await apiClient.get<ApiResponse<UsersListResponse>>('/users', { params });
-    return response.data.data;
+    const response = await apiClient.get<ApiResponse<User[]>>('/users', { params });
+    // Backend returns data as the array and pagination as a top-level field in the JSON body
+    // However, apiClient response.data IS the body.
+    const body = response.data as any;
+    return {
+        users: body.data,
+        pagination: body.pagination
+    };
 }
 
 export async function getUserById(id: string): Promise<User> {
@@ -31,6 +37,10 @@ export async function deleteUser(id: string): Promise<{ message: string }> {
 }
 
 export async function getActivityLogs(params?: PaginationParams): Promise<ActivityLogResponse> {
-    const response = await apiClient.get<ApiResponse<ActivityLogResponse>>('/activity', { params });
-    return response.data.data;
+    const response = await apiClient.get<ApiResponse<ActivityLogEntry[]>>('/activity', { params });
+    const body = response.data as any;
+    return {
+        logs: body.data,
+        pagination: body.pagination
+    };
 }

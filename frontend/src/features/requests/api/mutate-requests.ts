@@ -17,8 +17,8 @@ export async function deleteRequest(id: string): Promise<{ message: string }> {
     return response.data.data;
 }
 
-export async function assignRequest(id: string, assigneeId: string): Promise<RequestItem> {
-    const response = await apiClient.patch<ApiResponse<RequestItem>>(`/requests/${id}/assign`, { assigneeId });
+export async function assignRequest(id: string, assignedTo: string): Promise<RequestItem> {
+    const response = await apiClient.patch<ApiResponse<RequestItem>>(`/requests/${id}/assign`, { assignedTo });
     return response.data.data;
 }
 

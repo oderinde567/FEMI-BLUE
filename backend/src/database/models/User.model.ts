@@ -7,6 +7,9 @@ export interface IUser extends Document {
     firstName: string;
     lastName: string;
     phone?: string;
+    company?: string;
+    location?: string;
+    bio?: string;
     avatarUrl?: string;
     role: 'admin' | 'staff' | 'client';
     emailVerified: boolean;
@@ -48,6 +51,21 @@ const userSchema = new Schema<IUser>(
             trim: true,
             maxlength: 20,
         },
+        company: {
+            type: String,
+            trim: true,
+            maxlength: 100,
+        },
+        location: {
+            type: String,
+            trim: true,
+            maxlength: 200,
+        },
+        bio: {
+            type: String,
+            trim: true,
+            maxlength: 1000,
+        },
         avatarUrl: {
             type: String,
         },
@@ -71,11 +89,12 @@ const userSchema = new Schema<IUser>(
     {
         timestamps: true,
         toJSON: {
+            virtuals: true,
             transform(_doc, ret) {
-                const obj = ret as { passwordHash?: string; __v?: number };
+                const obj = ret as { passwordHash?: string; __v?: number; _id?: any };
                 delete obj.passwordHash;
                 delete obj.__v;
-                return ret;
+                return obj;
             },
         },
     }

@@ -5,6 +5,10 @@ export interface User {
     firstName: string;
     lastName: string;
     role: 'admin' | 'staff' | 'client';
+    phone?: string;
+    company?: string;
+    location?: string;
+    bio?: string;
     avatarUrl?: string;
     emailVerified: boolean;
     isActive: boolean;
