@@ -15,7 +15,12 @@ export const validateRequest = (schemas: ValidationSchemas): RequestHandler => {
                 req.body = schemas.body.parse(req.body);
             }
             if (schemas.query) {
-                req.query = schemas.query.parse(req.query);
+                const query = schemas.query.parse(req.query);
+                try {
+                    req.query = query;
+                } catch {
+                    Object.defineProperty(req, 'query', { value: query, writable: true });
+                }
             }
             if (schemas.params) {
                 req.params = schemas.params.parse(req.params);

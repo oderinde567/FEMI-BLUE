@@ -1,4 +1,4 @@
-import type { User } from '../auth/types';
+import type { User } from '../../auth/types';
 
 // Re-export User type for admin context
 export type { User };

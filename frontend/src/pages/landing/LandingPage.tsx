@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, ClipboardCheck, Bell, BarChart3, Globe, Mail } from 'lucide-react';
+import { ArrowRight, Users, ClipboardCheck, Bell } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import Footer from '../../components/layout/Footer';
 import Header from '../../components/layout/Header';

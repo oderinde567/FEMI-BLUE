@@ -1,46 +1,9 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Check, RefreshCw, Package, CheckCircle, User, FileText, CalendarDays, ArrowLeft, Clock, Building2, AlertCircle, Send, Paperclip, MessageSquare, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { Check, RefreshCw, Package, CheckCircle, FileText, CalendarDays, ArrowLeft, Clock, Building2, Send, Paperclip, MessageSquare, Edit, Trash2, MoreVertical, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
-
-// Mock request data - in a real app this would come from an API
-const mockRequest = {
-    id: 'BA-10294',
-    title: 'Hardware Specification Review',
-    description: 'Need IT team to review and approve the hardware specifications for the new server room upgrade. The current servers are 5 years old and showing signs of performance degradation during peak hours.',
-    status: 'In Progress',
-    priority: 'high',
-    type: 'IT Support',
-    department: 'Information Technology',
-    createdAt: '2026-01-10T09:30:00',
-    updatedAt: '2026-01-12T14:22:00',
-    requestedBy: {
-        name: 'Adebayo Okonkwo',
-        email: 'adebayo@bluearnk.ng',
-        avatar: 'AO',
-    },
-    assignedTo: {
-        name: 'John Doe',
-        email: 'john.doe@bluearnk.ng',
-        avatar: 'JD',
-    },
-    attachments: [
-        { name: 'server_specs.pdf', size: '2.4 MB' },
-        { name: 'current_performance.xlsx', size: '156 KB' },
-    ],
-    timeline: [
-        { id: 1, action: 'Request submitted', user: 'Adebayo Okonkwo', time: 'Jan 10, 9:30 AM', status: 'complete' },
-        { id: 2, action: 'Assigned to John Doe', user: 'System', time: 'Jan 10, 9:45 AM', status: 'complete' },
-        { id: 3, action: 'Status changed to In Progress', user: 'John Doe', time: 'Jan 11, 10:00 AM', status: 'current' },
-        { id: 4, action: 'Review pending', user: '', time: '', status: 'upcoming' },
-        { id: 5, action: 'Completion', user: '', time: '', status: 'upcoming' },
-    ],
-    comments: [
-        { id: 1, user: 'John Doe', avatar: 'JD', message: "I'm currently reviewing the hardware specifications. We expect to have a full assessment ready by the end of today.", time: '2 hours ago' },
-        { id: 2, user: 'Adebayo Okonkwo', avatar: 'AO', message: 'Great, please let me know if you need any additional documentation.', time: '1 hour ago' },
-    ],
-};
+import { useRequest } from '../../features/requests';
 
 const steps = [
     { id: 'submitted', label: 'Submitted', icon: Check, status: 'complete' },
@@ -56,32 +19,55 @@ const stepperStyles = {
 };
 
 const statusColors: Record<string, string> = {
-    'Pending': 'bg-primary/10 text-primary',
-    'In Progress': 'bg-royal-blue/10 text-royal-blue',
-    'Completed': 'bg-green-100 text-green-600',
-    'Overdue': 'bg-red-100 text-red-600',
+    'pending': 'bg-primary/10 text-primary',
+    'in_progress': 'bg-royal-blue/10 text-royal-blue',
+    'completed': 'bg-green-100 text-green-600',
+    'overdue': 'bg-red-100 text-red-600',
+    'cancelled': 'bg-gray-100 text-gray-600',
 };
 
 const priorityColors: Record<string, { bg: string, text: string, dot: string }> = {
     low: { bg: 'bg-green-50', text: 'text-green-600', dot: 'bg-green-500' },
     medium: { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500' },
     high: { bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
+    urgent: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-600' },
 };
 
 export default function RequestDetailPage() {
     const { id } = useParams();
-    const navigate = useNavigate();
+    const { data: request, isLoading } = useRequest(id || '');
+
     const [newComment, setNewComment] = useState('');
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-    const [comments, setComments] = useState(mockRequest.comments);
+    const [comments, setComments] = useState<any[]>([]); // Placeholder for real comments
     const [showActions, setShowActions] = useState(false);
 
-    const request = { ...mockRequest, id: id || mockRequest.id };
+    if (isLoading) {
+        return (
+            <div className="flex h-[50vh] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!request) {
+        return (
+            <div className="flex h-[50vh] flex-col items-center justify-center">
+                <FileText className="h-16 w-16 text-gray-300 mb-4" />
+                <h2 className="text-xl font-bold text-navy dark:text-white">Request not found</h2>
+                <Link to="/requests" className="mt-4 text-primary hover:underline">
+                    Back to Requests
+                </Link>
+            </div>
+        );
+    }
+
     const priority = priorityColors[request.priority] || priorityColors.medium;
 
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
         setIsSubmittingComment(true);
+        // TODO: Implement create comment mutation
         await new Promise(resolve => setTimeout(resolve, 500));
         setComments([...comments, {
             id: comments.length + 1,
@@ -136,7 +122,7 @@ export default function RequestDetailPage() {
                             <div className="flex flex-wrap items-center gap-3 mb-4">
                                 <span className="text-sm font-bold text-primary">#{request.id}</span>
                                 <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-medium", statusColors[request.status])}>
-                                    {request.status}
+                                    {request.status.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
                                 </span>
                                 <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1", priority.bg, priority.text)}>
                                     <span className={cn("h-2 w-2 rounded-full", priority.dot)} />
@@ -147,8 +133,7 @@ export default function RequestDetailPage() {
                             <p className="text-gray-600 dark:text-gray-400">{request.description}</p>
                         </div>
 
-                        {/* Status Stepper */}
-                        <div className="p-6 bg-gray-50 dark:bg-navy/30">
+                        <div className="p-6">
                             <h3 className="text-sm font-bold text-navy dark:text-white uppercase tracking-wider mb-6">Progress Tracker</h3>
                             <div className="relative flex items-center justify-between">
                                 {steps.map((step, index) => {
@@ -242,15 +227,8 @@ export default function RequestDetailPage() {
                             <div className="flex items-start gap-3">
                                 <Building2 className="h-5 w-5 text-gray-400 shrink-0" />
                                 <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Department</p>
-                                    <p className="font-medium text-navy dark:text-white">{request.department}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <FileText className="h-5 w-5 text-gray-400 shrink-0" />
-                                <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Type</p>
-                                    <p className="font-medium text-navy dark:text-white">{request.type}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Category</p>
+                                    <p className="font-medium text-navy dark:text-white capitalize">{request.category.replace('_', ' ')}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
@@ -282,11 +260,11 @@ export default function RequestDetailPage() {
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Requested By</p>
                                 <div className="flex items-center gap-3">
                                     <div className="h-9 w-9 rounded-full bg-linear-to-br from-primary to-amber-500 flex items-center justify-center text-white font-bold text-sm">
-                                        {request.requestedBy.avatar}
+                                        {request.requesterName ? request.requesterName.substring(0, 2).toUpperCase() : 'RQ'}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-navy dark:text-white text-sm">{request.requestedBy.name}</p>
-                                        <p className="text-xs text-gray-500">{request.requestedBy.email}</p>
+                                        <p className="font-medium text-navy dark:text-white text-sm">{request.requesterName || 'Unknown Requester'}</p>
+                                        <p className="text-xs text-gray-500">{request.requesterEmail || ''}</p>
                                     </div>
                                 </div>
                             </div>
@@ -294,11 +272,10 @@ export default function RequestDetailPage() {
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Assigned To</p>
                                 <div className="flex items-center gap-3">
                                     <div className="h-9 w-9 rounded-full bg-royal-blue flex items-center justify-center text-white font-bold text-sm">
-                                        {request.assignedTo.avatar}
+                                        {request.assigneeName ? request.assigneeName.substring(0, 2).toUpperCase() : '?'}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-navy dark:text-white text-sm">{request.assignedTo.name}</p>
-                                        <p className="text-xs text-gray-500">{request.assignedTo.email}</p>
+                                        <p className="font-medium text-navy dark:text-white text-sm">{request.assigneeName || 'Unassigned'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -309,42 +286,30 @@ export default function RequestDetailPage() {
                     <div className="bg-white dark:bg-navy-light rounded-xl shadow-sm border border-gray-100 dark:border-navy p-6">
                         <h3 className="text-sm font-bold text-navy dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
                             <Paperclip className="h-4 w-4" />
-                            Attachments ({request.attachments.length})
+                            Attachments ({request.attachments?.length || 0})
                         </h3>
                         <div className="space-y-2">
-                            {request.attachments.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy/70 transition-colors cursor-pointer">
-                                    <div className="flex items-center gap-3">
-                                        <FileText className="h-5 w-5 text-primary" />
-                                        <span className="text-sm font-medium text-navy dark:text-white">{file.name}</span>
+                            {request.attachments?.map((fileString: string, index: number) => {
+                                const name = fileString.split('/').pop() || fileString;
+                                return (
+                                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy/70 transition-colors cursor-pointer">
+                                        <div className="flex items-center gap-3">
+                                            <FileText className="h-5 w-5 text-primary" />
+                                            <span className="text-sm font-medium text-navy dark:text-white truncate max-w-[200px]">{name}</span>
+                                        </div>
                                     </div>
-                                    <span className="text-xs text-gray-500">{file.size}</span>
-                                </div>
-                            ))}
+                                );
+                            })}
+                            {(!request.attachments || request.attachments.length === 0) && (
+                                <p className="text-sm text-gray-500 italic">No attachments</p>
+                            )}
                         </div>
                     </div>
 
                     {/* Activity Timeline Card */}
                     <div className="bg-white dark:bg-navy-light rounded-xl shadow-sm border border-gray-100 dark:border-navy p-6">
                         <h3 className="text-sm font-bold text-navy dark:text-white uppercase tracking-wider mb-4">Activity</h3>
-                        <div className="relative">
-                            <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-200 dark:bg-navy" />
-                            <div className="space-y-4">
-                                {request.timeline.filter(t => t.time).map((item) => (
-                                    <div key={item.id} className="flex gap-4 relative">
-                                        <div className={cn(
-                                            "h-4 w-4 rounded-full shrink-0 z-10",
-                                            item.status === 'complete' ? 'bg-green-500' :
-                                                item.status === 'current' ? 'bg-royal-blue' : 'bg-gray-300'
-                                        )} />
-                                        <div>
-                                            <p className="text-sm text-navy dark:text-white font-medium">{item.action}</p>
-                                            <p className="text-xs text-gray-500">{item.user && `${item.user} • `}{item.time}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        <p className="text-sm text-gray-500 italic">Activity logs coming soon...</p>
                     </div>
                 </div>
             </div>

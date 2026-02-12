@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera, Mail, Phone, Building2, MapPin, Save, User } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { useAuthStore } from '../../store/useAuthStore';
 
 interface UserProfile {
     firstName: string;
@@ -14,21 +15,38 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
+    const { user } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Initialize with user data from store + placeholders for missing fields
     const [profile, setProfile] = useState<UserProfile>({
-        firstName: 'Femi',
-        lastName: 'Oderinde',
-        email: 'femi@bluearnk.ng',
-        phone: '+234 8144 9799 38',
-        company: 'BlueArnk Technologies',
-        location: 'Lagos, Nigeria',
-        role: 'C.E.O/ Operations Manager',
-        bio: 'Experienced operations manager with a passion for streamlining business processes and improving efficiency.',
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        phone: '',
+        company: 'BlueArnk Technologies', // Placeholder/Default
+        location: 'Lagos, Nigeria', // Placeholder/Default
+        role: user?.role || 'Client',
+        bio: '',
     });
+
+    // Update local state if user store changes
+    useEffect(() => {
+        if (user) {
+            setProfile(prev => ({
+                ...prev,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+            }));
+        }
+    }, [user]);
 
     const handleSave = async () => {
         setIsSaving(true);
+        // TODO: Implement update profile API call
         await new Promise(resolve => setTimeout(resolve, 1000));
         setIsSaving(false);
         setIsEditing(false);
@@ -73,7 +91,8 @@ export default function ProfilePage() {
                         <div className="flex flex-col items-center text-center">
                             <div className="relative mb-4">
                                 <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-amber-500 flex items-center justify-center text-white text-3xl font-bold">
-                                    {profile.firstName[0]}{profile.lastName[0]}
+                                    {profile.firstName ? profile.firstName[0].toUpperCase() : 'U'}
+                                    {profile.lastName ? profile.lastName[0].toUpperCase() : ''}
                                 </div>
                                 {isEditing && (
                                     <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg cursor-pointer hover:bg-primary/90">
@@ -84,7 +103,7 @@ export default function ProfilePage() {
                             <h2 className="text-xl font-bold text-navy dark:text-white">
                                 {profile.firstName} {profile.lastName}
                             </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{profile.role}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{profile.role}</p>
                             <div className="mt-4 w-full">
                                 <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                     <Building2 className="h-4 w-4" />

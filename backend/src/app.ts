@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { authLimiter, apiLimiter } from './middleware/rateLimiter.js';
 
 // Import routes
 import authRoutes from './modules/auth/auth.routes.js';
@@ -25,6 +26,13 @@ export const createApp = (): Express => {
     // Body parsing
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true }));
+
+    // RATE LIMITING (DDoS Protection)
+    // 1. Apply general limit to all API routes
+    app.use(`/api/${env.API_VERSION}`, apiLimiter);
+    
+    // 2. Apply strict limit to Auth routes
+    app.use(`/api/${env.API_VERSION}/auth`, authLimiter);
 
     // Health check
     app.get('/health', (_req: Request, res: Response) => {

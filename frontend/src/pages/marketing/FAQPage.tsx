@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, ChevronDown, Search, MessageCircle, CreditCard, Settings, Users, Shield } from 'lucide-react';
+import { ChevronDown, Search, MessageCircle, CreditCard, Settings, Users, Shield } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import Footer from '../../components/layout/Footer';
 import Header from '../../components/layout/Header';

@@ -3,11 +3,16 @@ import type { DateRangeQuery } from './reports.validators.js';
 
 class ReportsService {
     // Dashboard KPIs
-    async getDashboardStats() {
+    async getDashboardStats(userId?: string) {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+        const baseFilter: Record<string, unknown> = {};
+        if (userId) {
+            baseFilter.requesterId = userId;
+        }
 
         const [
             totalRequests,
@@ -20,18 +25,19 @@ class ReportsService {
             activeUsers,
             totalValue,
         ] = await Promise.all([
-            Request.countDocuments(),
-            Request.countDocuments({ status: 'pending' }),
-            Request.countDocuments({ status: 'in_progress' }),
-            Request.countDocuments({ status: 'completed' }),
-            Request.countDocuments({ createdAt: { $gte: startOfMonth } }),
+            Request.countDocuments(baseFilter),
+            Request.countDocuments({ ...baseFilter, status: 'pending' }),
+            Request.countDocuments({ ...baseFilter, status: 'in_progress' }),
+            Request.countDocuments({ ...baseFilter, status: 'completed' }),
+            Request.countDocuments({ ...baseFilter, createdAt: { $gte: startOfMonth } }),
             Request.countDocuments({
+                ...baseFilter,
                 createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
             }),
-            User.countDocuments(),
-            User.countDocuments({ isActive: true }),
+            userId ? 0 : User.countDocuments(),
+            userId ? 0 : User.countDocuments({ isActive: true }),
             Request.aggregate([
-                { $match: { status: 'completed' } },
+                { $match: { ...baseFilter, status: 'completed' } },
                 { $group: { _id: null, total: { $sum: '$valueNgn' } } },
             ]),
         ]);
@@ -61,8 +67,12 @@ class ReportsService {
     }
 
     // Requests summary with filters
-    async getRequestsSummary(query: DateRangeQuery) {
+    async getRequestsSummary(query: DateRangeQuery, userId?: string) {
         const filter: Record<string, unknown> = {};
+
+        if (userId) {
+            filter.requesterId = userId;
+        }
 
         if (query.fromDate || query.toDate) {
             filter.createdAt = {};
@@ -95,8 +105,10 @@ class ReportsService {
     }
 
     // Request trends over time
-    async getRequestTrends(query: DateRangeQuery) {
+    async getRequestTrends(query: DateRangeQuery, userId?: string) {
         const filter: Record<string, unknown> = {};
+        if (userId) filter.requesterId = userId;
+
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -129,8 +141,12 @@ class ReportsService {
     }
 
     // Requests grouped by status
-    async getRequestsByStatus() {
+    async getRequestsByStatus(userId?: string) {
+        const match: Record<string, unknown> = {};
+        if (userId) match.requesterId = userId;
+
         const results = await Request.aggregate([
+            ...(userId ? [{ $match: match }] : []),
             { $group: { _id: '$status', count: { $sum: 1 } } },
         ]);
 
@@ -138,8 +154,12 @@ class ReportsService {
     }
 
     // Requests grouped by category
-    async getRequestsByCategory() {
+    async getRequestsByCategory(userId?: string) {
+        const match: Record<string, unknown> = {};
+        if (userId) match.requesterId = userId;
+
         const results = await Request.aggregate([
+            ...(userId ? [{ $match: match }] : []),
             { $group: { _id: '$category', count: { $sum: 1 } } },
             { $sort: { count: -1 } },
         ]);

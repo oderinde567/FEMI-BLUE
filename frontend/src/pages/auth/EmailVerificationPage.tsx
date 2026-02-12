@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, CheckCircle, RefreshCw } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Mail, CheckCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { useVerifyEmail, useResendVerification } from '../../features/auth/hooks/useVerifyEmail';
+import { toast } from 'react-hot-toast';
 
 export default function EmailVerificationPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const email = location.state?.email;
+    
     const [code, setCode] = useState(['', '', '', '', '', '']);
-    const [isVerifying, setIsVerifying] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
+
+    const { mutate: verifyEmail, isPending: isVerifying, isSuccess } = useVerifyEmail();
+    const { mutate: resendVerification, isPending: isResending } = useResendVerification();
+
+    useEffect(() => {
+        if (!email) {
+            toast.error('Email address not found. Please sign up again.');
+            navigate('/signup');
+        }
+    }, [email, navigate]);
 
     // Simulate countdown for resend
     useEffect(() => {
@@ -56,22 +69,33 @@ export default function EmailVerificationPage() {
         }
     };
 
-    const handleVerify = async () => {
+    const handleVerify = () => {
         const fullCode = code.join('');
-        if (fullCode.length !== 6) return;
+        if (fullCode.length !== 6 || !email) return;
 
-        setIsVerifying(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSuccess(true);
-        setIsVerifying(false);
-
-        // Redirect after success
-        setTimeout(() => navigate('/'), 2000);
+        verifyEmail({ email, otp: fullCode }, {
+            onSuccess: () => {
+                toast.success('Email verified successfully!');
+                setTimeout(() => navigate('/login'), 2000);
+            },
+            onError: (error) => {
+                toast.error(error.message || 'Verification failed. Please try again.');
+            }
+        });
     };
 
     const handleResend = () => {
-        setResendCooldown(60);
-        // Simulate resend
+        if (!email) return;
+        
+        resendVerification(email, {
+            onSuccess: () => {
+                setResendCooldown(60);
+                toast.success('Verification code resent!');
+            },
+            onError: (error) => {
+                toast.error(error.message || 'Failed to resend code.');
+            }
+        });
     };
 
     const isCodeComplete = code.join('').length === 6;
@@ -89,7 +113,7 @@ export default function EmailVerificationPage() {
                                 </div>
                                 <h1 className="text-2xl font-bold text-white">Verify Your Email</h1>
                                 <p className="mt-2 text-slate-400 text-sm">
-                                    We've sent a 6-digit code to your email address.<br />
+                                    We've sent a 6-digit code to <span className="text-white font-medium">{email}</span>.<br />
                                     Enter it below to verify your account.
                                 </p>
                             </div>
@@ -116,12 +140,19 @@ export default function EmailVerificationPage() {
                             <button
                                 onClick={handleVerify}
                                 disabled={isVerifying || !isCodeComplete}
-                                className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 cursor-pointer ${isCodeComplete
+                                className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isCodeComplete
                                         ? 'bg-orange-500 hover:bg-orange-400 text-white shadow-lg shadow-orange-500/30'
                                         : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                     }`}
                             >
-                                {isVerifying ? 'Verifying...' : 'Verify Email'}
+                                {isVerifying ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        Verifying...
+                                    </>
+                                ) : (
+                                    'Verify Email'
+                                )}
                             </button>
 
                             <div className="mt-8 text-center">
@@ -132,9 +163,10 @@ export default function EmailVerificationPage() {
                                     ) : (
                                         <button
                                             onClick={handleResend}
-                                            className="text-orange-500 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                                            disabled={isResending}
+                                            className="text-orange-500 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
                                         >
-                                            <RefreshCw className="h-3.5 w-3.5" />
+                                            {isResending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                                             Resend Code
                                         </button>
                                     )}

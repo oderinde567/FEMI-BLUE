@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, CheckCircle, Clock, AlertTriangle, FileCheck, Settings, Mail, Smartphone, X } from 'lucide-react';
+import { CheckCircle, AlertTriangle, FileCheck, Settings } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
 

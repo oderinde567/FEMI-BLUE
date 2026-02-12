@@ -1,63 +1,141 @@
-import { Outlet, Link } from 'react-router-dom';
-import { Sidebar, MobileSidebar } from '../components/layout/Sidebar';
-import { Bell, Search, Menu } from 'lucide-react';
+import { Outlet, NavLink } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import {
+    LayoutDashboard, FileText, Bell, Settings,
+    Shield, Users, Activity, PieChart, LogOut, Menu
+} from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 import { useState } from 'react';
 
-export function DashboardLayout() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+export const DashboardLayout = () => {
+    const { logout, user } = useAuthStore();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const navigation = [
+        { name: 'Overview', href: '/', icon: LayoutDashboard },
+        { name: 'Requests', href: '/requests', icon: FileText },
+        { name: 'Reports', href: '/reports', icon: PieChart },
+        { name: 'Notifications', href: '/notifications', icon: Bell },
+    ];
+
+    const adminNavigation = [
+        { name: 'Users', href: '/admin/users', icon: Users },
+        { name: 'Activity', href: '/admin/activity', icon: Activity },
+    ];
+
+    const settingsNavigation = [
+        { name: 'General', href: '/settings', icon: Settings },
+        { name: 'Security', href: '/settings/security', icon: Shield },
+    ];
+
+    const NavItem = ({ item }: { item: any }) => {
+        return (
+            <NavLink
+                to={item.href}
+                className={({ isActive }) => `
+                    group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200
+                    ${isActive
+                        ? 'nav-item-active'
+                        : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100'}
+                `}
+            >
+                {({ isActive }) => (
+                    <>
+                        <item.icon className={`h-5 w-5 transition-colors ${isActive ? 'text-orange-500' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                        {item.name}
+                    </>
+                )}
+            </NavLink>
+        );
+    };
 
     return (
-        <div className="min-h-screen bg-bg-light dark:bg-bg-dark font-sans text-navy">
-            {/* Desktop Sidebar */}
-            <Sidebar />
+        <div className="relative min-h-screen bg-zinc-950 flex font-sans overflow-hidden">
+            {/* Background Glows */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-orange-600/10 blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[100px]" />
+                <div className="absolute top-[20%] right-[30%] w-[30%] h-[30%] rounded-full bg-purple-600/5 blur-[120px]" />
+            </div>
 
-            {/* Mobile Sidebar Overlay */}
-            <MobileSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-            <div className="lg:pl-64">
-                {/* Header */}
-                <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 px-4 md:px-6 backdrop-blur-md dark:border-navy-light dark:bg-navy/80">
-                    <div className="flex items-center gap-4">
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-navy-light cursor-pointer"
-                        >
-                            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                        </button>
-
-                        {/* Search Bar - Hidden on mobile */}
-                        <div className="hidden md:flex flex-1 max-w-md items-center rounded-xl bg-gray-50 px-3 py-2 text-sm text-gray-500 focus-within:ring-2 focus-within:ring-primary/20 dark:bg-navy-light dark:text-gray-400">
-                            <Search className="mr-2 h-4 w-4" />
-                            <input
-                                type="text"
-                                placeholder="Search analytics..."
-                                className="flex-1 bg-transparent outline-none placeholder:text-gray-400"
-                            />
+            <div className="relative z-10 flex w-full h-screen">
+                {/* Sidebar - Desktop (Glassmorphism applied via CSS classes) */}
+                <aside className="hidden lg:flex w-72 flex-col border-r border-white/5 bg-zinc-900/40 backdrop-blur-xl h-full">
+                    <div className="p-6">
+                        <div className="flex items-center gap-2 font-bold text-xl text-white tracking-tight">
+                            <div className="h-8 w-8 rounded-lg bg-linear-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-orange-500/20 shadow-lg">
+                                <span className="text-white">B</span>
+                            </div>
+                            BlueArnk
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 md:gap-4">
-                        {/* Mobile Search Button */}
-                        <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-navy-light cursor-pointer">
-                            <Search className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                        </button>
+                    <div className="flex-1 overflow-y-auto px-4 space-y-8 py-4">
+                        <div className="space-y-1">
+                            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Platform</p>
+                            {navigation.map((item) => <NavItem key={item.name} item={item} />)}
+                        </div>
 
-                        <button className="relative rounded-xl p-2 text-gray-400 hover:bg-gray-50 hover:text-primary transition-colors cursor-pointer">
-                            <Bell className="h-5 w-5" />
-                            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-                        </button>
-                        <Link to="/profile" className="h-9 w-9 overflow-hidden rounded-full border border-gray-200 bg-gray-100 hover:ring-2 hover:ring-primary/30 transition-all cursor-pointer">
-                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6qhn-Gz6Sko0Iq1z71g1O7UkgYvI0eQG0YP2SbcWslf6QW7AbAG4iyS-gPkHquR4AAj6asXg47XHYG_yVME5yUGQV9KfKtouip5fLHLNXyKTgEJRKnCMnodrAx5EkMn25f-CAeUn2SrTouNd2sQToDsOIB3JJWn2Tpq9eDrWPJa28heFdLkxdSH_T7Bh5YMcUG4UfDJx0JZXckzb6T2iYb4fL8hOmUbQYlq2KAmsSI1oRa6gz9hj4z8GfCb61i2zAlPySZM3shQ" alt="User" className="h-full w-full object-cover" />
-                        </Link>
+                        {user?.role === 'admin' && (
+                            <div className="space-y-1">
+                                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Admin</p>
+                                {adminNavigation.map((item) => <NavItem key={item.name} item={item} />)}
+                            </div>
+                        )}
+
+                        <div className="space-y-1">
+                            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Settings</p>
+                            {settingsNavigation.map((item) => <NavItem key={item.name} item={item} />)}
+                        </div>
                     </div>
-                </header>
 
-                {/* Main Content Area */}
-                <main className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-                    <Outlet />
-                </main>
+                    <div className="p-4 border-t border-white/5">
+                        <button
+                            onClick={() => {
+                                logout();
+                                toast.success('Logged out successfully');
+                            }}
+                            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition-colors cursor-pointer"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            Sign Out
+                        </button>
+                    </div>
+                </aside>
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+                    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/5 bg-zinc-950/50 backdrop-blur-md px-6">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="lg:hidden p-2 text-zinc-400 hover:text-white"
+                        >
+                            <Menu className="h-6 w-6" />
+                        </button>
+
+                        <div className="flex items-center gap-4 ml-auto">
+                            <div className="flex items-center gap-3 pl-6 border-l border-white/10">
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-sm font-medium text-white">{user ? `${user.firstName} ${user.lastName}` : 'Guest'}</p>
+                                    <p className="text-xs text-zinc-500 capitalize">{user?.role || 'User'}</p>
+                                </div>
+                                <div className="h-9 w-9 rounded-full bg-linear-to-tr from-orange-500 to-amber-500 p-px">
+                                    <div className="h-full w-full rounded-full bg-zinc-900 flex items-center justify-center text-xs font-bold text-white">
+                                        {user?.firstName?.[0] || 'U'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                        {/* Animate-in effect for page loads */}
+                        <div className="mx-auto max-w-7xl animate-slide-up">
+                            <Outlet />
+                        </div>
+                    </main>
+                </div>
             </div>
         </div>
     );
-}
+};

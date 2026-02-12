@@ -1,189 +1,66 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #FB8500;
-  --color-primary-hover: #e57600;
-  --color-royal-blue: #0052CC;
-  --color-navy: #0A192F;
-  --color-navy-light: #112240;
-  --color-bg-light: #F4F7FA;
-  --color-bg-dark: #0A192F;
+  --font-sans: 'Inter', sans-serif;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
 
-  --font-display: "Inter", sans-serif;
-  --font-body: "Inter", sans-serif;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Custom Colors */
+  --color-navy: #0f172a;
+  /* slate-900 */
+  --color-navy-light: #1e293b;
+  /* slate-800 */
+  --color-royal-blue: #2563eb;
+  /* blue-600 */
+  --color-primary: #f97316;
+  /* orange-500 */
+  --shadow-active-nav: inset 2px 0 0 0 rgba(249, 115, 22, 1);
 }
 
 :root {
-  font-family: var(--font-body);
-  color-scheme: light dark;
+  font-family: 'Inter', sans-serif;
+  background-color: #09090b;
+  /* zinc-950 */
+  color: #f4f4f5;
+  /* zinc-100 */
 }
 
-@layer base {
-  body {
-    @apply bg-bg-light text-navy antialiased min-h-screen selection:bg-primary/20;
-  }
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-zinc-900/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
 }
 
-/* Smooth Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+.glass-input {
+  @apply bg-zinc-950/50 border border-white/5 text-zinc-100 placeholder:text-zinc-600 focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/10 transition-all duration-300 outline-none;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.glass-button {
+  @apply bg-linear-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20 hover:from-orange-400 hover:to-orange-500 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300;
 }
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(251, 133, 0, 0.2);
-  }
-
-  50% {
-    box-shadow: 0 0 40px rgba(251, 133, 0, 0.4);
-  }
-}
-
-/* Animation Utility Classes */
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.7s ease-out forwards;
-}
-
-.animate-fade-in-down {
-  animation: fadeInDown 0.6s ease-out forwards;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.6s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.6s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.5s ease-out forwards;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Stagger delays for children */
-.stagger-1 {
-  animation-delay: 0.1s;
-  opacity: 0;
-}
-
-.stagger-2 {
-  animation-delay: 0.2s;
-  opacity: 0;
-}
-
-.stagger-3 {
-  animation-delay: 0.3s;
-  opacity: 0;
-}
-
-.stagger-4 {
-  animation-delay: 0.4s;
-  opacity: 0;
-}
-
-.stagger-5 {
-  animation-delay: 0.5s;
-  opacity: 0;
-}
-
-.stagger-6 {
-  animation-delay: 0.6s;
-  opacity: 0;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Active Navigation Link */
+.nav-item-active {
+  @apply bg-orange-500/10 text-orange-500 shadow-active-nav;
 }

@@ -7,7 +7,7 @@ const router = Router();
 
 // All routes require authentication and staff/admin role
 router.use(authenticate);
-router.use(authorize('staff', 'admin'));
+router.use(authorize('staff', 'admin', 'client'));
 
 // GET /api/v1/reports/dashboard
 router.get('/dashboard', reportsController.getDashboard);

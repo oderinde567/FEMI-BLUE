@@ -18,8 +18,8 @@ class EmailService {
         console.log('📧 [EMAIL] Attempting to send email...');
         console.log('📧 [EMAIL] BREVO_API_KEY configured:', !!env.BREVO_API_KEY);
 
-        if (!env.BREVO_API_KEY) {
-            console.log('📧 [EMAIL] ⚠️ No BREVO_API_KEY - simulating email send');
+        if (!env.BREVO_API_KEY || env.BREVO_API_KEY === 'xkeysib-placeholder') {
+            console.log('📧 [EMAIL] ⚠️ No BREVO_API_KEY or using placeholder - simulating email send');
             console.log('📧 [EMAIL] Simulated payload:', JSON.stringify(body, null, 2));
             return { messageId: 'simulated-' + Date.now() } as T;
         }
