@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BarChart3, Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import Footer from '../../components/layout/Footer';
 import Header from '../../components/layout/Header';

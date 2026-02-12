@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle, ShieldCheck } from 'lucide-react';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    // const [searchParams] = useSearchParams();
+    // const token = searchParams.get('token');
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -118,10 +118,10 @@ export default function ResetPasswordPage() {
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             className={`w-full rounded-xl border bg-slate-800 py-4 pl-12 pr-12 text-white placeholder:text-slate-500 transition-all focus:outline-none focus:ring-2 ${confirmPassword.length > 0
-                                                    ? passwordsMatch
-                                                        ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20'
-                                                        : 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-                                                    : 'border-slate-600 focus:border-orange-500 focus:ring-orange-500/20'
+                                                ? passwordsMatch
+                                                    ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20'
+                                                    : 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                                                : 'border-slate-600 focus:border-orange-500 focus:ring-orange-500/20'
                                                 }`}
                                             placeholder="Confirm new password"
                                             required
@@ -147,8 +147,8 @@ export default function ResetPasswordPage() {
                                     type="submit"
                                     disabled={isSubmitting || !passwordsMatch}
                                     className={`w-full py-4 rounded-xl text-base font-semibold transition-all duration-200 cursor-pointer ${passwordsMatch && hasMinLength && hasUppercase && hasNumber
-                                            ? 'bg-orange-500 hover:bg-orange-400 text-white shadow-lg shadow-orange-500/30'
-                                            : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                        ? 'bg-orange-500 hover:bg-orange-400 text-white shadow-lg shadow-orange-500/30'
+                                        : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                         }`}
                                 >
                                     {isSubmitting ? 'Resetting...' : 'Reset Password'}

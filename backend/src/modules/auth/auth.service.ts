@@ -34,9 +34,9 @@ class AuthService {
         } as jwt.SignOptions);
     }
 
-    // Generate 6-digit OTP
+    // Generate 6-digit OTP (SECURE VERSION)
     private generateOtp(): string {
-        return Math.floor(100000 + Math.random() * 900000).toString();
+        return crypto.randomInt(100000, 1000000).toString();
     }
 
     // Generate secure random token
@@ -213,7 +213,7 @@ class AuthService {
 
         return {
             accessToken: newAccessToken,
-            refreshToken, // Return same refresh token
+            refreshToken, // Return same refresh token (Consider rotation in future)
             expiresIn: 900,
         };
     }
